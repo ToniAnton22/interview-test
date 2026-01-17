@@ -21,7 +21,7 @@ export interface CreateProjectInput {
   budget: number;
 }
 
-export interface UpdateProjectInput extends Partial<CreateProjectInput> {}
+export type UpdateProjectInput = Partial<CreateProjectInput>
 
 export interface ProjectFilters {
   status?: ProjectStatus;
