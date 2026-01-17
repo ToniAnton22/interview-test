@@ -3,6 +3,7 @@
 import { Pencil, Trash2, Calendar, User, DollarSign } from "lucide-react";
 import { Project } from "@/types/project";
 import StatusBadge from "./StatusBadge";
+import Link from "next/link";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -108,7 +109,7 @@ export default function ProjectTable({
                 className="hover:bg-gray-50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <a
+                  <Link
                     href={`/dashboard/${project.id}`}
                     className="hover:bg-gray-400"
                   >
@@ -122,7 +123,7 @@ export default function ProjectTable({
                         </div>
                       )}
                     </div>
-                  </a>
+                  </Link>
                 </td>
                 <td className="px-6 py-4">
                   <StatusBadge status={project.status} />
