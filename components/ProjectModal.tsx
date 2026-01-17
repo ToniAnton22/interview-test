@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Project, CreateProjectInput } from "@/types/project";
+import { Project, CreateProjectInput, ProjectStatus } from "@/types/project";
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface ProjectModalProps {
 const initialFormData: CreateProjectInput = {
   name: "",
   description: "",
-  status: "active",
+  status: ProjectStatus.ACTIVE,
   deadline: "",
   assigned_to: "",
   budget: 0,

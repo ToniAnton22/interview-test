@@ -1,4 +1,15 @@
-export type ProjectStatus = 'active' | 'on_hold' | 'completed';
+export enum ProjectStatus {
+  ACTIVE = "active",
+  ON_HOLD = "on_hold",
+  COMPLETED = "completed",
+}
+
+export enum ProjectStatusFilter {
+  ALL = "all",
+  ACTIVE = "active",
+  ON_HOLD = "on_hold",
+  COMPLETED = "completed",
+}
 
 export interface Project {
   id: string;
@@ -21,7 +32,7 @@ export interface CreateProjectInput {
   budget: number;
 }
 
-export type UpdateProjectInput = Partial<CreateProjectInput>
+export type UpdateProjectInput = Partial<CreateProjectInput>;
 
 export interface ProjectFilters {
   status?: ProjectStatus;

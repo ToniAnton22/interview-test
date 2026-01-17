@@ -1,12 +1,13 @@
 "use client";
 
+import { ProjectStatusFilter } from "@/types/project";
 import { Search, Plus } from "lucide-react";
 
 interface FilterBarProps {
   search: string;
   onSearchChange: (value: string) => void;
-  status: string;
-  onStatusChange: (value: string) => void;
+  status: ProjectStatusFilter;
+  onStatusChange: (value: ProjectStatusFilter) => void;
   onAddClick: () => void;
 }
 
@@ -32,13 +33,13 @@ export default function FilterBar({
 
       <select
         value={status}
-        onChange={(e) => onStatusChange(e.target.value)}
+        onChange={(e) => onStatusChange(e.target.value as ProjectStatusFilter)}
         className="px-4 py-2 text-zinc-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
       >
-        <option value="all">All Status</option>
-        <option value="active">Active</option>
-        <option value="on_hold">On Hold</option>
-        <option value="completed">Completed</option>
+        <option value={ProjectStatusFilter.ALL}>All Status</option>
+        <option value={ProjectStatusFilter.ACTIVE}>Active</option>
+        <option value={ProjectStatusFilter.ON_HOLD}>On Hold</option>
+        <option value={ProjectStatusFilter.COMPLETED}>Completed</option>
       </select>
 
       <button

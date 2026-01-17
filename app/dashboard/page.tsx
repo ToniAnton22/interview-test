@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Project, CreateProjectInput } from "@/types/project";
+import {
+  Project,
+  CreateProjectInput,
+  ProjectStatus,
+  ProjectStatusFilter,
+} from "@/types/project";
 import ProjectTable from "@/components/ProjectTable";
 import ProjectModal from "@/components/ProjectModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
@@ -11,7 +16,9 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>(
+    ProjectStatusFilter.ALL,
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -22,7 +29,8 @@ export default function DashboardPage() {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (statusFilter !== ProjectStatusFilter.ALL)
+        params.set("status", statusFilter);
       if (search) params.set("search", search);
 
       const response = await fetch(`/api/projects?${params}`);
@@ -36,9 +44,6 @@ export default function DashboardPage() {
     }
   }, [statusFilter, search]);
 
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
