@@ -1,25 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import { Project, CreateProjectInput } from "@/types/project";
 import ProjectTable from "@/components/ProjectTable";
 import ProjectModal from "@/components/ProjectModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import FilterBar from "@/components/FilterBar";
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/projects");
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (search) params.set("search", search);
+
+      const response = await fetch(`/api/projects?${params}`);
       if (!response.ok) throw new Error("Failed to fetch projects");
       const data = await response.json();
       setProjects(data);
@@ -28,11 +34,18 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [statusFilter, search]);
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchProjects();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, fetchProjects]);
 
   const handleCreate = async (data: CreateProjectInput) => {
     const response = await fetch("/api/projects", {
@@ -88,6 +101,7 @@ export default function DashboardPage() {
     }
   };
 
+  // Modal handlers
   const openAddModal = () => {
     setEditingProject(null);
     setIsModalOpen(true);
@@ -114,23 +128,22 @@ export default function DashboardPage() {
                 Manage and track all your projects in one place
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500">
-                {projects.length} project{projects.length !== 1 ? "s" : ""}
-              </span>
-              <button
-                onClick={openAddModal}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Add Project</span>
-              </button>
+            <div className="text-sm text-gray-500">
+              {projects.length} project{projects.length !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <FilterBar
+          search={search}
+          onSearchChange={setSearch}
+          status={statusFilter}
+          onStatusChange={setStatusFilter}
+          onAddClick={openAddModal}
+        />
+
         <ProjectTable
           projects={projects}
           onEdit={openEditModal}

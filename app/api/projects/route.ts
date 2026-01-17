@@ -3,16 +3,33 @@ import { NextRequest, NextResponse } from "next/server";
 import { CreateProjectInput } from "@/types/project";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+    const { searchParams } = new URL(request.url);
 
-    const query = supabase
+    const status = searchParams.get("status");
+    const search = searchParams.get("search");
+    const assignee = searchParams.get("assignee");
+
+    let query = supabase
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
 
+    if (status && status !== "all") {
+      query = query.eq("status", status);
+    }
+    if (assignee) {
+      query = query.eq("assigned_to", assignee);
+    }
+    if (search) {
+      query = query.or(
+        `name.ilike.%${search}%,description.ilike.%${search}%,assigned_to.ilike.%${search}%`,
+      );
+    }
+    
     const { data, error } = await query;
 
     if (error) {
