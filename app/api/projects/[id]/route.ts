@@ -7,6 +7,37 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
+export async function GET(_: NextRequest, { params }: RouteParams) {
+  try {
+    const cookieStore = cookies();
+    const { id } = await params;
+    const supabase = createClient(cookieStore);
+
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return NextResponse.json(
+          { error: "Project not found" },
+          { status: 404 },
+        );
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const cookieStore = cookies();

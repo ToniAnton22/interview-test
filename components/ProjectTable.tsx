@@ -108,16 +108,21 @@ export default function ProjectTable({
                 className="hover:bg-gray-50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {project.name}
-                    </div>
-                    {project.description && (
-                      <div className="text-sm text-gray-500 truncate max-w-xs">
-                        {project.description}
+                  <a
+                    href={`/dashboard/${project.id}`}
+                    className="hover:bg-gray-400"
+                  >
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {project.name}
                       </div>
-                    )}
-                  </div>
+                      {project.description && (
+                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                          {project.description}
+                        </div>
+                      )}
+                    </div>
+                  </a>
                 </td>
                 <td className="px-6 py-4">
                   <StatusBadge status={project.status} />

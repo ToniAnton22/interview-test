@@ -24,7 +24,6 @@ const statusConfig: Record<
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const config = statusConfig[status];
-
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.className}`}
