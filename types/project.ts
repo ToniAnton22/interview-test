@@ -11,6 +11,15 @@ export enum ProjectStatusFilter {
   COMPLETED = "completed",
 }
 
+export interface ProjectWithUser extends Project {
+  assigned_user?: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | null;
+  };
+}
+
 export interface Project {
   id: string;
   name: string;
