@@ -11,6 +11,16 @@ import ProjectTable from "@/components/ProjectTable";
 import ProjectModal from "@/components/ProjectModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import FilterBar from "@/components/FilterBar";
+import Pagination, { PaginationInfo } from "@/components/Pagination";
+
+const DEFAULT_PAGINATION: PaginationInfo = {
+  page: 1,
+  limit: 10,
+  total: 0,
+  totalPages: 0,
+  hasNext: false,
+  hasPrev: false,
+};
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<ProjectView[]>([]);
@@ -20,31 +30,45 @@ export default function DashboardPage() {
     ProjectStatusFilter.ALL,
   );
   const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [pagination, setPagination] =
+    useState<PaginationInfo>(DEFAULT_PAGINATION);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchProjects = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (statusFilter !== ProjectStatusFilter.ALL)
-        params.set("status", statusFilter);
-      if (search) params.set("search", search);
+  const fetchProjects = useCallback(
+    async (page: number = 1) => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        params.set("limit", String(pagination.limit));
 
-      const response = await fetch(`/api/projects?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch projects");
-      const data = await response.json();
-      setProjects(data);
-    } catch (error) {
-      console.error("Error fetching details:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [statusFilter, search]);
+        if (statusFilter !== ProjectStatusFilter.ALL) {
+          params.set("status", statusFilter);
+        }
+        if (search) {
+          params.set("search", search);
+        }
 
-  const fetchUsers = useCallback(async () => {
+        const response = await fetch(`/api/projects?${params}`);
+        if (!response.ok) throw new Error("Failed to fetch projects");
+
+        const result = await response.json();
+        setProjects(result.data);
+        setPagination(result.pagination);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [statusFilter, search, pagination.limit],
+  );
+
+  const fetchUser = useCallback(async () => {
     try {
       const getUser = await fetch("/api/user/getCurrent");
       if (!getUser.ok) throw new Error("Failed to fetch user.");
@@ -52,21 +76,27 @@ export default function DashboardPage() {
       const user = await getUser.json();
       setCurrentUserId(user.id);
     } catch (error) {
-      console.error("Error fetching details:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching user:", error);
     }
   }, []);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchProjects();
-      if (!currentUserId) {
-        fetchUsers();
-      }
+      fetchProjects(1);
     }, 300);
     return () => clearTimeout(timer);
-  }, [search, fetchProjects, fetchUsers, currentUserId]);
+  }, [search, statusFilter, fetchProjects]);
+
+  useEffect(() => {
+    if (!currentUserId) {
+      fetchUser();
+    }
+  }, [fetchUser, currentUserId]);
+
+  const handlePageChange = (page: number) => {
+    fetchProjects(page);
+  };
 
   const handleCreate = async (data: CreateProjectInput) => {
     const response = await fetch("/api/projects", {
@@ -80,7 +110,8 @@ export default function DashboardPage() {
       throw new Error(error.message || "Failed to create project");
     }
 
-    fetchProjects();
+    // Go to first page to see new project
+    fetchProjects(1);
   };
 
   const handleUpdate = async (data: CreateProjectInput) => {
@@ -97,7 +128,7 @@ export default function DashboardPage() {
       throw new Error(error.message || "Failed to update project");
     }
 
-    fetchProjects();
+    fetchProjects(pagination.page);
   };
 
   const handleDelete = async () => {
@@ -114,7 +145,13 @@ export default function DashboardPage() {
       }
 
       setDeletingProject(null);
-      fetchProjects();
+
+      // If we deleted the last item on a page, go to previous page
+      if (projects.length === 1 && pagination.page > 1) {
+        fetchProjects(pagination.page - 1);
+      } else {
+        fetchProjects(pagination.page);
+      }
     } catch (error) {
       console.error("Error deleting project:", error);
     } finally {
@@ -150,7 +187,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-sm text-gray-500">
-              {projects.length} project{projects.length !== 1 ? "s" : ""}
+              {pagination.total} project{pagination.total !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -172,6 +209,8 @@ export default function DashboardPage() {
           onDelete={setDeletingProject}
           isLoading={isLoading}
         />
+
+        <Pagination pagination={pagination} onPageChange={handlePageChange} />
       </main>
 
       <ProjectModal

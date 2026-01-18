@@ -91,8 +91,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updateData.description = body.description;
     if (body.status !== undefined) updateData.status = body.status;
     if (body.deadline !== undefined) updateData.deadline = body.deadline;
-    if (body.assigned_to !== undefined)
-      updateData.assigned_to = body.assigned_to;
     if (body.budget !== undefined) updateData.budget = body.budget;
 
     if (Object.keys(updateData).length === 0) {

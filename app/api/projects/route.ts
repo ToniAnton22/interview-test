@@ -21,7 +21,16 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const search = searchParams.get("search");
     const assignee = searchParams.get("assignee");
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(
+      searchParams.get("limit") || '10',
+      10,
+    );
 
+    // Calculate offset
+    const offset = (page - 1) * limit;
+
+    // Build query for data
     let query = supabase
       .from("projects")
       .select(
@@ -29,8 +38,10 @@ export async function GET(request: NextRequest) {
           *,
           assigned_user:users!assigned_to (id, name)
         `,
+        { count: "exact" },
       )
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (status && status !== "all") {
       query = query.eq("status", status);
@@ -39,18 +50,28 @@ export async function GET(request: NextRequest) {
       query = query.eq("assigned_to", assignee);
     }
     if (search) {
-      query = query.or(
-        `name.ilike.%${search}%,description.ilike.%${search}%,assigned_to.ilike.%${search}%`,
-      );
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data);
+    const totalPages = Math.ceil((count || 0) / limit);
+
+    return NextResponse.json({
+      data,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal server error" },

@@ -54,10 +54,14 @@ export default function ProjectDetailsPage() {
 
   useEffect(() => {
     fetchProject();
+  }, [fetchProject]);
+
+  // Fetch user on mount
+  useEffect(() => {
     if (!currentUserId) {
       fetchUser();
     }
-  }, [fetchProject, fetchUser, currentUserId]);
+  }, [fetchUser, currentUserId]);
 
   const handleUpdate = async (data: CreateProjectInput) => {
     if (!project) return;
