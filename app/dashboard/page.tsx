@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Project,
   CreateProjectInput,
-  ProjectStatus,
   ProjectStatusFilter,
+  ProjectView,
 } from "@/types/project";
 import ProjectTable from "@/components/ProjectTable";
 import ProjectModal from "@/components/ProjectModal";
@@ -13,7 +13,7 @@ import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import FilterBar from "@/components/FilterBar";
 
 export default function DashboardPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectView[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>(

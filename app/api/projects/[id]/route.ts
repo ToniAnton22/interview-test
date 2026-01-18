@@ -15,7 +15,12 @@ export async function GET(_: NextRequest, { params }: RouteParams) {
 
     const { data, error } = await supabase
       .from("projects")
-      .select("*")
+      .select(
+        `
+          *,
+          assigned_user:users!assigned_to (id, name)
+        `,
+      )
       .eq("id", id)
       .single();
 

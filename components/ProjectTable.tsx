@@ -1,12 +1,12 @@
 "use client";
 
 import { Pencil, Trash2, Calendar, User, DollarSign } from "lucide-react";
-import { Project } from "@/types/project";
+import { Project, ProjectView } from "@/types/project";
 import StatusBadge from "./StatusBadge";
 import Link from "next/link";
 
 interface ProjectTableProps {
-  projects: Project[];
+  projects: ProjectView[];
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
   isLoading?: boolean;
@@ -132,7 +132,7 @@ export default function ProjectTable({
                   {formatDate(project.deadline)}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {project.assigned_to}
+                  {project.assigned_user.name}
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                   {formatBudget(project.budget)}

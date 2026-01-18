@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Project, CreateProjectInput } from "@/types/project";
+import { Project, CreateProjectInput, ProjectView } from "@/types/project";
 import ProjectModal from "@/components/ProjectModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import StatusBadge from "@/components/StatusBadge";
@@ -13,7 +13,7 @@ export default function ProjectDetailsPage() {
   const router = useRouter();
   const id = params?.id;
 
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<ProjectView | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -168,7 +168,7 @@ export default function ProjectDetailsPage() {
                     Assigned to
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    {project.assigned_to}
+                    {project.assigned_user.name}
                   </dd>
                 </div>
 

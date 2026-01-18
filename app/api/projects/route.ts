@@ -15,7 +15,12 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from("projects")
-      .select("*")
+      .select(
+        `
+          *,
+          assigned_user:users!assigned_to (id, name)
+        `,
+      )
       .order("created_at", { ascending: false });
 
     if (status && status !== "all") {

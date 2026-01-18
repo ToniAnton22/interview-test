@@ -32,6 +32,22 @@ export interface Project {
   updated_at: string;
 }
 
+export interface ProjectView {
+  id: string;
+  name: string;
+  description: string | null;
+  status: ProjectStatus;
+  deadline: string;
+  assigned_to: string;
+  assigned_user: {
+    id: string;
+    name: string;
+  };
+  budget: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreateProjectInput {
   name: string;
   description?: string;
