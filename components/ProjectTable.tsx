@@ -10,7 +10,7 @@ import { formatBudget } from "@/lib/utils/formatters/formatBudget";
 interface ProjectTableProps {
   projects: ProjectView[];
   currentUserId?: string;
-  onEdit: (project: Project) => void;
+  onEdit: (project: ProjectView) => void;
   onDelete: (project: Project) => void;
   isLoading?: boolean;
 }
@@ -22,7 +22,6 @@ export default function ProjectTable({
   onDelete,
   isLoading,
 }: ProjectTableProps) {
-
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -53,7 +52,9 @@ export default function ProjectTable({
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900">No projects found</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            No projects found
+          </h3>
           <p className="text-gray-500 mt-1">
             Get started by creating a new project.
           </p>
@@ -120,7 +121,8 @@ export default function ProjectTable({
                   {formatBudget(project.budget)}
                 </td>
                 <td className="px-6 py-4 text-right">
-                  {currentUserId && project.assigned_user.id === currentUserId ? (
+                  {currentUserId &&
+                  project.assigned_user.id === currentUserId ? (
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => onEdit(project)}

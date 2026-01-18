@@ -13,6 +13,7 @@ import React, {
 import type { PaginationInfo } from "@/components/Pagination";
 import {
   CreateProjectInput,
+  Project,
   ProjectStatusFilter,
   ProjectView,
 } from "@/types/project";
@@ -33,9 +34,9 @@ interface ProjectsContextType {
   pagination: PaginationInfo;
 
   isModalOpen: boolean;
-  editingProject: ProjectView | null;
+  editingProject: Project | null;
 
-  deletingProject: ProjectView | null;
+  deletingProject: Project | null;
   isDeleting: boolean;
 
   setSearch: React.Dispatch<React.SetStateAction<string>>;
@@ -50,7 +51,7 @@ interface ProjectsContextType {
   openEditModal: (project: ProjectView) => void;
   closeModal: () => void;
 
-  setDeletingProject: React.Dispatch<React.SetStateAction<ProjectView | null>>;
+  setDeletingProject: React.Dispatch<React.SetStateAction<Project | null>>;
 }
 
 const DEFAULT_PAGINATION: PaginationInfo = {
@@ -80,11 +81,9 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     useState<PaginationInfo>(DEFAULT_PAGINATION);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<ProjectView | null>(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-  const [deletingProject, setDeletingProject] = useState<ProjectView | null>(
-    null,
-  );
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchProjects = useCallback(
@@ -248,7 +247,9 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <ProjectsContext.Provider value={value}>{children}</ProjectsContext.Provider>
+    <ProjectsContext.Provider value={value}>
+      {children}
+    </ProjectsContext.Provider>
   );
 }
 
