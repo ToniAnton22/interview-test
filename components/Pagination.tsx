@@ -124,7 +124,7 @@ export default function Pagination({ pagination, onPageChange }: PaginationProps
                 </span>
               ) : (
                 <button
-                  key={pageNum}
+                  key={`pageNum-${pageNum}`}
                   onClick={() => onPageChange(pageNum as number)}
                   className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 focus:z-20 ${
                     page === pageNum

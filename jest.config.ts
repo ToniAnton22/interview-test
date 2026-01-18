@@ -1,5 +1,5 @@
 import type { Config } from "jest";
-import nextJest from "next/jest";
+import nextJest from "next/jest.js";
 
 const createJestConfig = nextJest({
   dir: "./",
@@ -12,11 +12,10 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
   },
-  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
+  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/", "<rootDir>/lib/seed.ts"],
   collectCoverageFrom: [
     "components/**/*.{ts,tsx}",
     "app/**/*.{ts,tsx}",
-    "lib/**/*.{ts,tsx}",
     "!**/*.stories.{ts,tsx}",
     "!**/node_modules/**",
   ],

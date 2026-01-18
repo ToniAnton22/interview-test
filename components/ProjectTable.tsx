@@ -184,7 +184,7 @@ export default function ProjectTable({
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {project.assigned_to}
+                {project.assigned_user.name}
               </div>
               <div className="flex items-center gap-1">
                 <DollarSign className="w-4 h-4" />
@@ -192,7 +192,7 @@ export default function ProjectTable({
               </div>
             </div>
 
-            {currentUserId && project.assigned_to === currentUserId && (
+            {currentUserId && project.assigned_user.id === currentUserId && (
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={() => onEdit(project)}

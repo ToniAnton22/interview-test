@@ -11,7 +11,7 @@ jest.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-jest.mock("@/utils/supabase/client", () => ({
+jest.mock("@/lib/utils/supabase/client", () => ({
   createClient: () => ({
     auth: {
       getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
