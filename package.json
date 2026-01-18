@@ -9,6 +9,7 @@
     "lint": "eslint",
     "seed": "npx tsx lib/seed.ts",
     "test": "jest",
+    "typecheck": "tsc --noEmit",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "storybook": "storybook dev -p 6006",
