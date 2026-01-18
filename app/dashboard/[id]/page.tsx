@@ -27,7 +27,7 @@ export default function ProjectDetailsPage() {
     try {
       const response = await fetch(`/api/projects/${id}`);
       if (!response.ok) throw new Error("Failed to fetch project");
-      const data = (await response.json()) as Project;
+      const data = (await response.json()) as ProjectView;
 
       setProject(data);
     } catch (error) {

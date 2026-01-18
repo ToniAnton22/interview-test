@@ -1,3 +1,4 @@
+import { ProjectView } from "@/types/project";
 import { createClient } from "@supabase/supabase-js";
 import "dotenv/config";
 
@@ -152,13 +153,11 @@ async function seedProjects(userMap: Map<string, string>) {
   }
 
   const userIds = Array.from(userMap.values());
-  const userNames = Array.from(userMap.keys());
 
   const projects = projectNames.map((name, index) => {
     // Distribute projects among users
     const userIndex = index % userIds.length;
     const userId = userIds[userIndex];
-    const userName = userNames[userIndex];
 
     return {
       name,
@@ -182,9 +181,9 @@ async function seedProjects(userMap: Map<string, string>) {
   }
 
   console.log(`✅ Seeded ${data.length} projects:\n`);
-  data.forEach((p: any) => {
+  data.forEach((project: ProjectView) => {
     console.log(
-      `  - ${p.name} (${p.status}) - ${p.assigned_user?.name || "Unknown"} - $${p.budget.toLocaleString()}`,
+      `  - ${project.name} (${project.status}) - ${project.assigned_user?.name || "Unknown"} - $${project.budget.toLocaleString()}`,
     );
   });
 }
