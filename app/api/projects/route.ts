@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { CreateProjectInput } from "@/types/project";
 import { cookies } from "next/headers";
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         `name.ilike.%${search}%,description.ilike.%${search}%,assigned_to.ilike.%${search}%`,
       );
     }
-    
+
     const { data, error } = await query;
 
     if (error) {

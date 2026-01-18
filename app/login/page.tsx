@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/utils/supabase/client";
 import { Mail, Lock, Loader2 } from "lucide-react";
 
 type AuthMode = "login" | "signup";

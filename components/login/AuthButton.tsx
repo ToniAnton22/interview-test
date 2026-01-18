@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/utils/supabase/client";
 import { LogOut, User, Loader2 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
