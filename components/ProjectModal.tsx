@@ -16,7 +16,6 @@ const initialFormData: CreateProjectInput = {
   description: "",
   status: ProjectStatus.ACTIVE,
   deadline: "",
-  assigned_to: "",
   budget: 0,
 };
 
@@ -39,7 +38,6 @@ export default function ProjectModal({
         description: project.description || "",
         status: project.status,
         deadline: project.deadline,
-        assigned_to: project.assigned_to,
         budget: project.budget,
       });
     } else {
@@ -56,9 +54,6 @@ export default function ProjectModal({
     }
     if (!formData.deadline) {
       newErrors.deadline = "Deadline is required";
-    }
-    if (!formData.assigned_to.trim()) {
-      newErrors.assigned_to = "Assigned team member is required";
     }
     if (formData.budget < 0) {
       newErrors.budget = "Budget cannot be negative";
@@ -94,7 +89,7 @@ export default function ProjectModal({
       ...prev,
       [name]: name === "budget" ? parseFloat(value) || 0 : value,
     }));
-
+    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -104,13 +99,16 @@ export default function ProjectModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
+      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
 
+      {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md transform transition-all">
+          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-xl font-semibold text-gray-900">
               {isEditing ? "Edit Project" : "Add New Project"}
@@ -123,7 +121,9 @@ export default function ProjectModal({
             </button>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Name */}
             <div>
               <label
                 htmlFor="name"
@@ -137,7 +137,7 @@ export default function ProjectModal({
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border text-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
                   errors.name ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter project name"
@@ -147,6 +147,7 @@ export default function ProjectModal({
               )}
             </div>
 
+            {/* Description */}
             <div>
               <label
                 htmlFor="description"
@@ -160,11 +161,12 @@ export default function ProjectModal({
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
-                className="w-full text-zinc-700 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
                 placeholder="Enter project description (optional)"
               />
             </div>
 
+            {/* Status */}
             <div>
               <label
                 htmlFor="status"
@@ -177,7 +179,7 @@ export default function ProjectModal({
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-3 text-zinc-700 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
               >
                 <option value="active">Active</option>
                 <option value="on_hold">On Hold</option>
@@ -185,6 +187,7 @@ export default function ProjectModal({
               </select>
             </div>
 
+            {/* Deadline */}
             <div>
               <label
                 htmlFor="deadline"
@@ -198,7 +201,7 @@ export default function ProjectModal({
                 name="deadline"
                 value={formData.deadline}
                 onChange={handleChange}
-                className={`w-full px-3 text-zinc-700 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
                   errors.deadline ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -207,31 +210,7 @@ export default function ProjectModal({
               )}
             </div>
 
-            <div>
-              <label
-                htmlFor="assigned_to"
-                className="block text-sm font-medium text-zinc-700 mb-1"
-              >
-                Assigned To *
-              </label>
-              <input
-                type="text"
-                id="assigned_to"
-                name="assigned_to"
-                value={formData.assigned_to}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border text-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
-                  errors.assigned_to ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter team member name"
-              />
-              {errors.assigned_to && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.assigned_to}
-                </p>
-              )}
-            </div>
-
+            {/* Budget */}
             <div>
               <label
                 htmlFor="budget"
@@ -247,7 +226,7 @@ export default function ProjectModal({
                 onChange={handleChange}
                 min="0"
                 step="100"
-                className={`w-full px-3 py-2 border text-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
                   errors.budget ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="0"
@@ -257,6 +236,7 @@ export default function ProjectModal({
               )}
             </div>
 
+            {/* Actions */}
             <div className="flex gap-3 pt-4">
               <button
                 type="button"

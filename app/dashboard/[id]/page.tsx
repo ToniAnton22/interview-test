@@ -16,6 +16,7 @@ export default function ProjectDetailsPage() {
   const [project, setProject] = useState<ProjectView | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [currentUserId, setCurrentUserId] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
@@ -37,9 +38,26 @@ export default function ProjectDetailsPage() {
     }
   }, [id]);
 
+  const fetchUser = useCallback(async () => {
+    try {
+      const getUser = await fetch("/api/user/getCurrent");
+      if (!getUser.ok) throw new Error("Failed to fetch user.");
+
+      const user = await getUser.json();
+      setCurrentUserId(user.id);
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProject();
-  }, [fetchProject]);
+    if (!currentUserId) {
+      fetchUser();
+    }
+  }, [fetchProject, fetchUser, currentUserId]);
 
   const handleUpdate = async (data: CreateProjectInput) => {
     if (!project) return;
@@ -114,26 +132,27 @@ export default function ProjectDetailsPage() {
                 View and manage this project
               </p>
             </div>
+            {currentUserId === project?.assigned_user.id && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={openEditModal}
+                  disabled={!project || isLoading}
+                  className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Edit
+                </button>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={openEditModal}
-                disabled={!project || isLoading}
-                className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Edit
-              </button>
-
-              <button
-                type="button"
-                onClick={() => project && setDeletingProject(project)}
-                disabled={!project || isLoading}
-                className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Delete
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => project && setDeletingProject(project)}
+                  disabled={!project || isLoading}
+                  className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>

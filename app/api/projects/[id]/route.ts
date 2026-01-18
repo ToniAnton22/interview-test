@@ -13,6 +13,13 @@ export async function GET(_: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const supabase = createClient(cookieStore);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { data, error } = await supabase
       .from("projects")
       .select(
@@ -48,6 +55,34 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const cookieStore = cookies();
     const { id } = await params;
     const supabase = createClient(cookieStore);
+
+    // Get authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check ownership
+    const { data: project } = await supabase
+      .from("projects")
+      .select("assigned_to")
+      .eq("id", id)
+      .single();
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    if (project.assigned_to !== user.id) {
+      return NextResponse.json(
+        { error: "You can only edit your own projects" },
+        { status: 403 },
+      );
+    }
+
     const body: UpdateProjectInput = await request.json();
 
     const updateData: Record<string, unknown> = {};
@@ -71,7 +106,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .from("projects")
       .update(updateData)
       .eq("id", id)
-      .select()
+      .select(
+        `
+        *,
+        assigned_user:users!assigned_to (
+          id,
+          name
+        )
+      `,
+      )
       .single();
 
     if (error) {
@@ -98,7 +141,33 @@ export async function DELETE(_: NextRequest, { params }: RouteParams) {
     const cookieStore = cookies();
     const { id } = await params;
     const supabase = createClient(cookieStore);
-    console.log(id);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check ownership
+    const { data: project } = await supabase
+      .from("projects")
+      .select("assigned_to")
+      .eq("id", id)
+      .single();
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    if (project.assigned_to !== user.id) {
+      return NextResponse.json(
+        { error: "You can only delete your own projects" },
+        { status: 403 },
+      );
+    }
+
     const { error } = await supabase.from("projects").delete().eq("id", id);
 
     if (error) {

@@ -7,6 +7,7 @@ import Link from "next/link";
 
 interface ProjectTableProps {
   projects: ProjectView[];
+  currentUserId?: string;
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
   isLoading?: boolean;
@@ -14,6 +15,7 @@ interface ProjectTableProps {
 
 export default function ProjectTable({
   projects,
+  currentUserId,
   onEdit,
   onDelete,
   isLoading,
@@ -65,9 +67,7 @@ export default function ProjectTable({
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900">
-            No projects found
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900">No projects found</h3>
           <p className="text-gray-500 mt-1">
             Get started by creating a new project.
           </p>
@@ -78,6 +78,7 @@ export default function ProjectTable({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -109,20 +110,15 @@ export default function ProjectTable({
                 className="hover:bg-gray-50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <Link
-                    href={`/dashboard/${project.id}`}
-                    className="hover:bg-gray-400"
-                  >
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {project.name}
-                      </div>
-                      {project.description && (
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
-                          {project.description}
-                        </div>
-                      )}
+                  <Link href={`/dashboard/${project.id}`}>
+                    <div className="font-medium text-gray-900">
+                      {project.name}
                     </div>
+                    {project.description && (
+                      <div className="text-sm text-gray-500 truncate max-w-xs">
+                        {project.description}
+                      </div>
+                    )}
                   </Link>
                 </td>
                 <td className="px-6 py-4">
@@ -138,22 +134,26 @@ export default function ProjectTable({
                   {formatBudget(project.budget)}
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => onEdit(project)}
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                      title="Edit project"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDelete(project)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                      title="Delete project"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {currentUserId && project.assigned_user.id === currentUserId ? (
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => onEdit(project)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                        title="Edit project"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onDelete(project)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                        title="Delete project"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">View only</span>
+                  )}
                 </td>
               </tr>
             ))}
@@ -161,6 +161,7 @@ export default function ProjectTable({
         </table>
       </div>
 
+      {/* Mobile Cards */}
       <div className="md:hidden divide-y divide-gray-200">
         {projects.map((project) => (
           <div key={project.id} className="p-4 space-y-3">
@@ -191,20 +192,22 @@ export default function ProjectTable({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => onEdit(project)}
-                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => onDelete(project)}
-                className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
-              >
-                Delete
-              </button>
-            </div>
+            {currentUserId && project.assigned_to === currentUserId && (
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => onEdit(project)}
+                  className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => onDelete(project)}
+                  className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

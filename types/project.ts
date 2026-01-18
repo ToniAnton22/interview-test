@@ -53,7 +53,6 @@ export interface CreateProjectInput {
   description?: string;
   status?: ProjectStatus;
   deadline: string;
-  assigned_to: string;
   budget: number;
 }
 

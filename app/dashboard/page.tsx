@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>(
     ProjectStatusFilter.ALL,
   );
-
+  const [currentUserId, setCurrentUserId] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
@@ -38,19 +38,35 @@ export default function DashboardPage() {
       const data = await response.json();
       setProjects(data);
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      console.error("Error fetching details:", error);
     } finally {
       setIsLoading(false);
     }
   }, [statusFilter, search]);
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const getUser = await fetch("/api/user/getCurrent");
+      if (!getUser.ok) throw new Error("Failed to fetch user.");
+
+      const user = await getUser.json();
+      setCurrentUserId(user.id);
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchProjects();
+      if (!currentUserId) {
+        fetchUsers();
+      }
     }, 300);
     return () => clearTimeout(timer);
-  }, [search, fetchProjects]);
+  }, [search, fetchProjects, fetchUsers, currentUserId]);
 
   const handleCreate = async (data: CreateProjectInput) => {
     const response = await fetch("/api/projects", {
@@ -151,6 +167,7 @@ export default function DashboardPage() {
 
         <ProjectTable
           projects={projects}
+          currentUserId={currentUserId}
           onEdit={openEditModal}
           onDelete={setDeletingProject}
           isLoading={isLoading}

@@ -7,6 +7,15 @@ export async function GET(request: NextRequest) {
   try {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
 
     const status = searchParams.get("status");
@@ -54,11 +63,20 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body: CreateProjectInput = await request.json();
 
-    if (!body.name || !body.deadline || !body.assigned_to) {
+    if (!body.name || !body.deadline) {
       return NextResponse.json(
-        { error: "Missing required fields: name, deadline, assigned_to" },
+        { error: "Missing required fields: name, deadline" },
         { status: 400 },
       );
     }
@@ -70,10 +88,18 @@ export async function POST(request: NextRequest) {
         description: body.description || null,
         status: body.status || "active",
         deadline: body.deadline,
-        assigned_to: body.assigned_to,
+        assigned_to: user.id, // Owner is current user
         budget: body.budget || 0,
       })
-      .select()
+      .select(
+        `
+        *,
+        assigned_user:users!assigned_to (
+          id,
+          name
+        )
+      `,
+      )
       .single();
 
     if (error) {
