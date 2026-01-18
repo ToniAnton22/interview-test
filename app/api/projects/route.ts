@@ -2,15 +2,11 @@ import { createClient } from "@/lib/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { CreateProjectInput } from "@/types/project";
 import { cookies } from "next/headers";
+import { validateUser } from "@/lib/utils/supabase/initSupabase";
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await validateUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,10 +18,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const assignee = searchParams.get("assignee");
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(
-      searchParams.get("limit") || '10',
-      10,
-    );
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
 
     // Calculate offset
     const offset = (page - 1) * limit;
@@ -82,12 +75,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await validateUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

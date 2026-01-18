@@ -1,58 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/utils/supabase/client";
 import { Mail, Lock, Loader2 } from "lucide-react";
-
-type AuthMode = "login" | "signup";
+import { useAuthForm } from "@/lib/hooks/useAuthForm";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const supabase = createClient();
+  const {
+    mode,
+    setMode,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    isLoading,
+    error,
+    message,
+    submit,
+  } = useAuthForm();
 
-  const [mode, setMode] = useState<AuthMode>("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-
-        if (error) throw error;
-
-        setMessage("Check your email for the confirmation link!");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
-        router.push("/dashboard");
-        router.refresh();
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+    submit();
   };
 
   return (

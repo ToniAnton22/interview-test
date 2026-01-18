@@ -4,6 +4,8 @@ import { Pencil, Trash2, Calendar, User, DollarSign } from "lucide-react";
 import { Project, ProjectView } from "@/types/project";
 import StatusBadge from "./StatusBadge";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils/formatters/formateDate";
+import { formatBudget } from "@/lib/utils/formatters/formatBudget";
 
 interface ProjectTableProps {
   projects: ProjectView[];
@@ -20,22 +22,6 @@ export default function ProjectTable({
   onDelete,
   isLoading,
 }: ProjectTableProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(budget);
-  };
 
   if (isLoading) {
     return (

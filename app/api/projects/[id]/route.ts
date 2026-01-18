@@ -2,6 +2,7 @@ import { createClient } from "@/lib/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { UpdateProjectInput } from "@/types/project";
 import { cookies } from "next/headers";
+import { validateUser } from "@/lib/utils/supabase/initSupabase";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -9,13 +10,9 @@ interface RouteParams {
 
 export async function GET(_: NextRequest, { params }: RouteParams) {
   try {
-    const cookieStore = cookies();
-    const { id } = await params;
-    const supabase = createClient(cookieStore);
+    const { user, supabase } = await validateUser();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { id } = await params;
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,14 +49,8 @@ export async function GET(_: NextRequest, { params }: RouteParams) {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const cookieStore = cookies();
+    const { user, supabase } = await validateUser();
     const { id } = await params;
-    const supabase = createClient(cookieStore);
-
-    // Get authenticated user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -136,13 +127,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(_: NextRequest, { params }: RouteParams) {
   try {
-    const cookieStore = cookies();
+    const { user, supabase } = await validateUser();
     const { id } = await params;
-    const supabase = createClient(cookieStore);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
