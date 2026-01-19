@@ -35,6 +35,8 @@ export async function GET(request: NextRequest) {
       .order("id", { ascending: false })
       .range(offset, offset + limit - 1);
 
+
+    // Applying filters
     if (status && status !== "all") {
       query = query.eq("status", status);
     }
@@ -72,6 +74,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
+
+/**
+ * Creates a new project via the API.
+ * 
+ * Security note: The backend enforces that `assigned_to` must be the current user.
+ * This is validated at both the API layer AND database level via RLS policies.
+ * See: supabase/migrations/2024010124524_create_projects.sql
+ */
 export async function POST(request: NextRequest) {
   try {
     const { user, supabase } = await validateUser();

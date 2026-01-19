@@ -5,6 +5,14 @@ import { AlertMessage, AlertType } from "../utils/types/Alert";
 
 let alertIdCounter = 0;
 
+/**
+ * Centralized toast notification system.
+ * 
+ * Provides consistent success/error/info feedback across the entire app.
+ * Auto-dismisses after 5 seconds to avoid UI clutter, but users can manually
+ * dismiss via the X button if needed.
+ */
+
 export function useAlerts() {
   const [alerts, setAlerts] = useState<AlertMessage[]>([]);
 

@@ -171,6 +171,11 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
   // EFFECTS
   // ============================================
 
+  // Debounce API calls to avoid hammering the server on every keystroke.
+  // 300ms delay means we only fetch after the user stops typing for 300ms.
+  // The cleanup function (clearTimeout) cancels the previous timer on each
+  // keystroke, so we only make ONE API call after they're done typing.
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchProjects(1);
@@ -205,7 +210,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         const message =
           error instanceof Error ? error.message : "Failed to create project";
         showError(message);
-        throw error; // Re-throw so modal knows it failed
+        throw error;
       }
     },
     [fetchProjects, isFiltering, showSuccess, showError],
@@ -215,7 +220,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     await signOut();
     router.push("/login");
     router.refresh();
-  },[router]);
+  }, [router]);
 
   const handleUpdate = useCallback(
     async (data: CreateProjectInput) => {

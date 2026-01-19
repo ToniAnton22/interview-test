@@ -13,6 +13,12 @@ interface UseProjectsRealtimeOptions {
   enabled?: boolean;
 }
 
+/**
+ * Manages real-time project updates via Supabase subscriptions.
+ * 
+ * This prevents mismatches in the UX when the user is deleting pages.
+ */
+
 export function useProjectsRealtime({
   onInsert,
   onUpdate,

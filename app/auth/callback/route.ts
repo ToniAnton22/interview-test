@@ -13,12 +13,25 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
-      return NextResponse.redirect(`${siteUrl}${next}`);
+    if (error) {
+      console.error("[auth/callback] exchange error:", error);
+
+      // If the callback was hit twice, the session may already exist
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        return NextResponse.redirect(`${siteUrl}${next}`);
+      }
+
+      return NextResponse.redirect(
+        `${siteUrl}/login?error=auth_callback_error`,
+      );
     }
+
+    return NextResponse.redirect(`${siteUrl}${next}`);
   }
 
-  return NextResponse.redirect(`${siteUrl}/login?error=auth_callback_error`);
+  return NextResponse.redirect(`${siteUrl}/login?error=missing_code`);
 }

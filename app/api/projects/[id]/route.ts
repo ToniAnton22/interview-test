@@ -46,6 +46,13 @@ export async function GET(_: NextRequest, { params }: RouteParams) {
   }
 }
 
+/**
+ * Update project endpoint.
+ * 
+ * Row-Level Security (RLS) ensures users can only update their own projects.
+ * Even if this API route is compromised, the database policies prevent
+ * unauthorized modifications. Defense in depth.
+ */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { user, supabase } = await validateUser();
@@ -124,6 +131,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
+/**
+ * Delete project endpoint.
+ * 
+ * RLS policies enforce that only the project owner (assigned_to) can delete.
+ * This is a hard delete - consider implementing soft deletes for production
+ * (add a `deleted_at` column and filter in queries instead).
+ */
 export async function DELETE(_: NextRequest, { params }: RouteParams) {
   try {
     const { user, supabase } = await validateUser();
