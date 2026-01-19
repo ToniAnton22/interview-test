@@ -2,6 +2,8 @@
 
 A production-ready project management dashboard built as a full-stack developer assessment. This project demonstrates clean architecture, proper separation of concerns, real-time updates, toast notifications, and comprehensive testing.
 
+**IMPORTANT: When signing up an email confirmation will be sent**
+
 **Live Demo (Hosted on my domain through a subdomain):** [https://interview.bard-labs.com](https://interview.bard-labs.com)
 **Live Demo (Vercel Link):** [interview-test-roan.vercel.app](interview-test-roan.vercel.app)
 
