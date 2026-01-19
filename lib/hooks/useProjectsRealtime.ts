@@ -40,7 +40,7 @@ export function useProjectsRealtime({
           table: "projects",
         },
         (payload) => {
-          console.log("🆕 Project inserted:", payload);
+          console.log("🆕 Project inserted");
           onInsert?.(payload);
         }
       )
@@ -52,7 +52,7 @@ export function useProjectsRealtime({
           table: "projects",
         },
         (payload) => {
-          console.log("✏️ Project updated:", payload);
+          console.log("✏️ Project updated");
           onUpdate?.(payload);
         }
       )
@@ -64,7 +64,7 @@ export function useProjectsRealtime({
           table: "projects",
         },
         (payload) => {
-          console.log("🗑️ Project deleted:", payload);
+          console.log("🗑️ Project deleted");
           onDelete?.(payload);
         }
       )
