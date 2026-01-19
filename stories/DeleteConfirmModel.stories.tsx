@@ -3,14 +3,20 @@ import { useState } from "react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import { Project, ProjectStatus } from "@/types/project";
 
-
 const meta: Meta<typeof DeleteConfirmModal> = {
   title: "Components/DeleteConfirmModal",
   component: DeleteConfirmModal,
   tags: ["autodocs"],
   parameters: {
-    layout: "centered",
+    layout: "fullscreen",
   },
+  decorators: [
+    (Story) => (
+      <div style={{ minHeight: '600px', padding: '2rem' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -72,6 +78,12 @@ export const Closed: Story = {
     onClose: () => console.log("Close"),
     onConfirm: async () => console.log("Confirm delete"),
   },
+  render: (args) => (
+    <div className="p-4">
+      <p className="text-gray-600">Modal is closed. Toggle isOpen above to see it.</p>
+      <DeleteConfirmModal {...args} />
+    </div>
+  ),
 };
 
 // Interactive example
@@ -88,10 +100,10 @@ const InteractiveDeleteModal = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-4">
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-red-600 text-white rounded-lg"
+        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
       >
         Delete Project
       </button>

@@ -10,6 +10,13 @@ const meta: Meta<typeof AlertContainer> = {
   parameters: {
     layout: "fullscreen",
   },
+  decorators: [
+    (Story) => (
+      <div style={{ minHeight: '400px', position: 'relative' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -21,11 +28,7 @@ export const SuccessAlert: Story = {
     const alerts: AlertMessage[] = [
       { id: "1", type: "success", message: "Project created successfully!" },
     ];
-    return (
-      <div className="p-4">
-        <AlertContainer alerts={alerts} onDismiss={() => {}} />
-      </div>
-    );
+    return <AlertContainer alerts={alerts} onDismiss={() => {}} />;
   },
 };
 
@@ -34,11 +37,7 @@ export const ErrorAlert: Story = {
     const alerts: AlertMessage[] = [
       { id: "1", type: "error", message: "Failed to delete project. Please try again." },
     ];
-    return (
-      <div className="p-4">
-        <AlertContainer alerts={alerts} onDismiss={() => {}} />
-      </div>
-    );
+    return <AlertContainer alerts={alerts} onDismiss={() => {}} />;
   },
 };
 
@@ -47,11 +46,7 @@ export const InfoAlert: Story = {
     const alerts: AlertMessage[] = [
       { id: "1", type: "info", message: "Check your email for the confirmation link!" },
     ];
-    return (
-      <div className="p-4">
-        <AlertContainer alerts={alerts} onDismiss={() => {}} />
-      </div>
-    );
+    return <AlertContainer alerts={alerts} onDismiss={() => {}} />;
   },
 };
 
@@ -63,11 +58,7 @@ export const AllTypes: Story = {
       { id: "2", type: "error", message: "Something went wrong. Please try again." },
       { id: "3", type: "info", message: "Your changes have been saved." },
     ];
-    return (
-      <div className="p-4">
-        <AlertContainer alerts={alerts} onDismiss={() => {}} />
-      </div>
-    );
+    return <AlertContainer alerts={alerts} onDismiss={() => {}} />;
   },
 };
 
@@ -82,11 +73,7 @@ export const LongMessage: Story = {
           "Failed to update project: The server returned an unexpected error. Please check your network connection and try again. If the problem persists, contact support.",
       },
     ];
-    return (
-      <div className="p-4">
-        <AlertContainer alerts={alerts} onDismiss={() => {}} />
-      </div>
-    );
+    return <AlertContainer alerts={alerts} onDismiss={() => {}} />;
   },
 };
 
@@ -154,11 +141,7 @@ export const StackedAlerts: Story = {
       { id: "3", type: "success", message: "Notification sent!" },
       { id: "4", type: "info", message: "Syncing with server..." },
     ];
-    return (
-      <div className="p-4 min-h-[300px]">
-        <AlertContainer alerts={alerts} onDismiss={() => {}} />
-      </div>
-    );
+    return <AlertContainer alerts={alerts} onDismiss={() => {}} />;
   },
 };
 

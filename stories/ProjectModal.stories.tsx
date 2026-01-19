@@ -8,8 +8,15 @@ const meta: Meta<typeof ProjectModal> = {
   component: ProjectModal,
   tags: ["autodocs"],
   parameters: {
-    layout: "centered",
+    layout: "fullscreen",
   },
+  decorators: [
+    (Story) => (
+      <div style={{ minHeight: '600px', padding: '2rem' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -58,6 +65,12 @@ export const Closed: Story = {
     onClose: () => console.log("Close"),
     onSave: async (data) => console.log("Save:", data),
   },
+  render: (args) => (
+    <div className="p-4">
+      <p className="text-gray-600">Modal is closed. Click "True" on isOpen above to open it.</p>
+      <ProjectModal {...args} />
+    </div>
+  ),
 };
 
 // Interactive example with toggle
@@ -69,6 +82,7 @@ const InteractiveModal = () => {
     console.log("Saved:", data);
     await new Promise((r) => setTimeout(r, 1000));
     alert(`Project "${data.name}" saved!`);
+    setIsOpen(false);
   };
 
   return (
@@ -79,7 +93,7 @@ const InteractiveModal = () => {
             setEditProject(null);
             setIsOpen(true);
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Create New Project
         </button>
@@ -88,7 +102,7 @@ const InteractiveModal = () => {
             setEditProject(mockProject);
             setIsOpen(true);
           }}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg"
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
         >
           Edit Existing Project
         </button>
