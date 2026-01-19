@@ -2,6 +2,7 @@
 
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
+import { AlertContainer } from "@/components/Alert";
 
 export default function LoginPage() {
   const {
@@ -12,9 +13,9 @@ export default function LoginPage() {
     password,
     setPassword,
     isLoading,
-    error,
-    message,
     submit,
+    alerts,
+    dismissAlert,
   } = useAuthForm();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -81,18 +82,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
-            {message && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
-                {message}
-              </div>
-            )}
-
             <button
               type="submit"
               disabled={isLoading}
@@ -128,6 +117,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      <AlertContainer alerts={alerts} onDismiss={dismissAlert} />
     </div>
   );
 }

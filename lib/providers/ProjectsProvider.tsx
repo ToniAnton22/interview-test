@@ -11,6 +11,7 @@ import React, {
 } from "react";
 
 import type { PaginationInfo } from "@/components/Pagination";
+import { AlertContainer } from "@/components/Alert";
 import {
   CreateProjectInput,
   Project,
@@ -24,14 +25,20 @@ import {
   updateProject,
   deleteProject,
 } from "@/lib/apis/projects.api";
+import { UserOwner } from "@/types/users";
+import { getCurrentUser, getOwners } from "@/lib/apis/users.api";
+import { useProjectsRealtime } from "@/lib/hooks/useProjectsRealtime";
+import { useAlerts } from "../hooks/useAlert";
 
 interface ProjectsContextType {
   projects: ProjectView[];
   isLoading: boolean;
+  owners: UserOwner[];
   currentUserId: string;
   search: string;
   statusFilter: ProjectStatusFilter;
   pagination: PaginationInfo;
+  assignee: string;
 
   isModalOpen: boolean;
   editingProject: Project | null;
@@ -42,6 +49,7 @@ interface ProjectsContextType {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   setStatusFilter: React.Dispatch<React.SetStateAction<ProjectStatusFilter>>;
   handlePageChange: (page: number) => void;
+  setAssignee: React.Dispatch<React.SetStateAction<string>>;
 
   handleCreate: (data: CreateProjectInput) => Promise<void>;
   handleUpdate: (data: CreateProjectInput) => Promise<void>;
@@ -64,17 +72,19 @@ const DEFAULT_PAGINATION: PaginationInfo = {
 };
 
 const ProjectsContext = createContext<ProjectsContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export function ProjectsProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<ProjectView[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [owners, setOwners] = useState<UserOwner[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>(
-    ProjectStatusFilter.ALL,
+    ProjectStatusFilter.ALL
   );
+  const [assignee, setAssignee] = useState<string>("");
 
   const [currentUserId, setCurrentUserId] = useState("");
   const [pagination, setPagination] =
@@ -85,6 +95,14 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
 
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Alerts
+  const { alerts, showSuccess, showError, dismissAlert } = useAlerts();
+
+  // Track if we're actively filtering (disables realtime auto-refresh)
+  const isFiltering = Boolean(
+    search || assignee || statusFilter !== ProjectStatusFilter.ALL
+  );
 
   const fetchProjects = useCallback(
     async (page: number = 1) => {
@@ -100,65 +118,113 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         if (search) {
           params.set("search", search);
         }
+        if (assignee) {
+          params.set("assignee", assignee);
+        }
 
         const result = await getProjects(params);
         setProjects(result.data);
         setPagination(result.pagination);
       } catch (error) {
         console.error("Error fetching projects:", error);
+        showError("Failed to load projects. Please try again.");
       } finally {
         setIsLoading(false);
       }
     },
-    [pagination.limit, search, statusFilter],
+    [pagination.limit, search, statusFilter, assignee, showError]
   );
 
   const fetchUser = useCallback(async () => {
     try {
-      const res = await fetch("/api/user/getCurrent");
-      if (!res.ok) throw new Error("Failed to fetch user.");
-      const user = await res.json();
+      const user = await getCurrentUser();
       setCurrentUserId(user.id);
+
+      const owners = await getOwners();
+      setOwners(owners);
     } catch (error) {
       console.error("Error fetching user:", error);
+      showError("Failed to load user data.");
     }
-  }, []);
+  }, [showError]);
 
-  // Refetch when filters change (debounced)
+  // ============================================
+  // REALTIME SUBSCRIPTION
+  // ============================================
+  const handleRealtimeChange = useCallback(() => {
+    if (!isFiltering) {
+      fetchProjects(pagination.page);
+    }
+  }, [isFiltering, fetchProjects, pagination.page]);
+
+  useProjectsRealtime({
+    onInsert: handleRealtimeChange,
+    onUpdate: handleRealtimeChange,
+    onDelete: handleRealtimeChange,
+    enabled: !isFiltering,
+  });
+
+  // ============================================
+  // EFFECTS
+  // ============================================
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchProjects(1);
     }, 300);
     return () => clearTimeout(timer);
-  }, [search, statusFilter, fetchProjects]);
+  }, [search, statusFilter, assignee, fetchProjects]);
 
-  // Get current user once
   useEffect(() => {
     if (!currentUserId) fetchUser();
   }, [currentUserId, fetchUser]);
+
+  // ============================================
+  // HANDLERS
+  // ============================================
 
   const handlePageChange = useCallback(
     (page: number) => {
       fetchProjects(page);
     },
-    [fetchProjects],
+    [fetchProjects]
   );
 
   const handleCreate = useCallback(
     async (data: CreateProjectInput) => {
-      await createProject(data);
-      await fetchProjects(1);
+      try {
+        await createProject(data);
+        showSuccess("Project created successfully!");
+        if (isFiltering) {
+          await fetchProjects(1);
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to create project";
+        showError(message);
+        throw error; // Re-throw so modal knows it failed
+      }
     },
-    [fetchProjects],
+    [fetchProjects, isFiltering, showSuccess, showError]
   );
 
   const handleUpdate = useCallback(
     async (data: CreateProjectInput) => {
       if (!editingProject) return;
-      await updateProject(editingProject.id, data);
-      await fetchProjects(pagination.page);
+      try {
+        await updateProject(editingProject.id, data);
+        showSuccess("Project updated successfully!");
+        if (isFiltering) {
+          await fetchProjects(pagination.page);
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to update project";
+        showError(message);
+        throw error;
+      }
     },
-    [editingProject, fetchProjects, pagination.page],
+    [editingProject, fetchProjects, pagination.page, isFiltering, showSuccess, showError]
   );
 
   const handleDelete = useCallback(async () => {
@@ -167,19 +233,36 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     setIsDeleting(true);
     try {
       await deleteProject(deletingProject.id);
+      showSuccess("Project deleted successfully!");
       setDeletingProject(null);
 
-      if (projects.length === 1 && pagination.page > 1) {
-        await fetchProjects(pagination.page - 1);
-      } else {
-        await fetchProjects(pagination.page);
+      if (isFiltering) {
+        if (projects.length === 1 && pagination.page > 1) {
+          await fetchProjects(pagination.page - 1);
+        } else {
+          await fetchProjects(pagination.page);
+        }
       }
     } catch (error) {
-      console.error("Error deleting project:", error);
+      const message =
+        error instanceof Error ? error.message : "Failed to delete project";
+      showError(message);
     } finally {
       setIsDeleting(false);
     }
-  }, [deletingProject, fetchProjects, pagination.page, projects.length]);
+  }, [
+    deletingProject,
+    fetchProjects,
+    pagination.page,
+    projects.length,
+    isFiltering,
+    showSuccess,
+    showError,
+  ]);
+
+  // ============================================
+  // MODAL HANDLERS
+  // ============================================
 
   const openAddModal = useCallback(() => {
     setEditingProject(null);
@@ -196,23 +279,30 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     setEditingProject(null);
   }, []);
 
+  // ============================================
+  // CONTEXT VALUE
+  // ============================================
+
   const value = useMemo<ProjectsContextType>(
     () => ({
       projects,
       isLoading,
       currentUserId,
+      owners,
+
       search,
       statusFilter,
-      pagination,
+      assignee,
 
+      pagination,
       isModalOpen,
       editingProject,
-
       deletingProject,
       isDeleting,
 
       setSearch,
       setStatusFilter,
+      setAssignee,
       handlePageChange,
 
       handleCreate,
@@ -229,8 +319,10 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       projects,
       isLoading,
       currentUserId,
+      owners,
       search,
       statusFilter,
+      assignee,
       pagination,
       isModalOpen,
       editingProject,
@@ -243,12 +335,13 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       openAddModal,
       openEditModal,
       closeModal,
-    ],
+    ]
   );
 
   return (
     <ProjectsContext.Provider value={value}>
       {children}
+      <AlertContainer alerts={alerts} onDismiss={dismissAlert} />
     </ProjectsContext.Provider>
   );
 }

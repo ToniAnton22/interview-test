@@ -1,4 +1,4 @@
-import ProjectDetailsClient from "../_components/ProjectDetailsClient";
+import ProjectDetailsClient from "./_components/ProjectDetailsClient";
 
 export default async function ProjectDetailsPage({
   params,

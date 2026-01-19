@@ -30,6 +30,10 @@ jest.mock("@/lib/utils/supabase/client", () => ({
   }),
 }));
 
+jest.mock("@/lib/hooks/useProjectRealtime", () => ({
+  useProjectsRealtime: jest.fn(),
+}));
+
 const originalError = console.error;
 beforeAll(() => {
   console.error = (...args: unknown[]) => {

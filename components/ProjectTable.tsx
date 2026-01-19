@@ -1,10 +1,10 @@
 "use client";
 
-import { Pencil, Trash2, Calendar, User, DollarSign } from "lucide-react";
+import { Pencil, Trash2, Calendar, User, DollarSign, Eye } from "lucide-react";
 import { Project, ProjectView } from "@/types/project";
 import StatusBadge from "./StatusBadge";
 import Link from "next/link";
-import { formatDate } from "@/lib/utils/formatters/formateDate";
+import { formatDate } from "@/lib/utils/formatters/formatDate";
 import { formatBudget } from "@/lib/utils/formatters/formatBudget";
 
 interface ProjectTableProps {
@@ -97,7 +97,7 @@ export default function ProjectTable({
                 className="hover:bg-gray-50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <Link href={`/dashboard/${project.id}`}>
+                  <div>
                     <div className="font-medium text-gray-900">
                       {project.name}
                     </div>
@@ -106,7 +106,7 @@ export default function ProjectTable({
                         {project.description}
                       </div>
                     )}
-                  </Link>
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <StatusBadge status={project.status} />
@@ -121,27 +121,36 @@ export default function ProjectTable({
                   {formatBudget(project.budget)}
                 </td>
                 <td className="px-6 py-4 text-right">
-                  {currentUserId &&
-                  project.assigned_user.id === currentUserId ? (
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => onEdit(project)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                        title="Edit project"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => onDelete(project)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                        title="Delete project"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-gray-400">View only</span>
-                  )}
+                  <div className="flex justify-end items-center gap-2">
+                    <Link
+                      href={`/dashboard/${project.id}`}
+                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                      title="View project"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    {currentUserId &&
+                    project.assigned_user.id === currentUserId ? (
+                      <>
+                        <button
+                          onClick={() => onEdit(project)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          title="Edit project"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onDelete(project)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Delete project"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-gray-400">View only</span>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -180,22 +189,30 @@ export default function ProjectTable({
               </div>
             </div>
 
-            {currentUserId && project.assigned_user.id === currentUserId && (
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  onClick={() => onEdit(project)}
-                  className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(project)}
-                  className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            <div className="flex justify-end gap-2 pt-2">
+              <Link
+                href={`/dashboard/${project.id}`}
+                className="px-3 py-1.5 text-sm text-green-700 hover:bg-green-50 rounded-lg transition"
+              >
+                View
+              </Link>
+              {currentUserId && project.assigned_user.id === currentUserId && (
+                <>
+                  <button
+                    onClick={() => onEdit(project)}
+                    className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(project)}
+                    className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         ))}
       </div>

@@ -1,114 +1,45 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Project, CreateProjectInput, ProjectStatus } from "@/types/project";
+import { CreateProjectInput } from "@/types/project";
+import type { ProjectFormErrors } from "@/lib/hooks/useProjectModal";
 
-interface ProjectModalProps {
+type Props = {
   isOpen: boolean;
-  onClose: () => void;
-  onSave: (data: CreateProjectInput) => Promise<void>;
-  project?: Project | null;
-}
+  isEditing: boolean;
+  formData: CreateProjectInput;
+  errors: ProjectFormErrors;
+  isLoading: boolean;
 
-const initialFormData: CreateProjectInput = {
-  name: "",
-  description: "",
-  status: ProjectStatus.ACTIVE,
-  deadline: "",
-  budget: 0,
+  onClose: () => void;
+  onFieldChange: <K extends keyof CreateProjectInput>(
+    name: K,
+    value: CreateProjectInput[K],
+  ) => void;
+  onSubmit: () => void;
 };
 
-export default function ProjectModal({
+export function ProjectModalView({
   isOpen,
+  isEditing,
+  formData,
+  errors,
+  isLoading,
   onClose,
-  onSave,
-  project,
-}: ProjectModalProps) {
-  const [formData, setFormData] = useState<CreateProjectInput>(initialFormData);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const isEditing = !!project;
-
-  useEffect(() => {
-    if (project) {
-      setFormData({
-        name: project.name,
-        description: project.description || "",
-        status: project.status,
-        deadline: project.deadline,
-        budget: project.budget,
-      });
-    } else {
-      setFormData(initialFormData);
-    }
-    setErrors({});
-  }, [project, isOpen]);
-
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Project name is required";
-    }
-    if (!formData.deadline) {
-      newErrors.deadline = "Deadline is required";
-    }
-    if (formData.budget < 0) {
-      newErrors.budget = "Budget cannot be negative";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) return;
-
-    setIsLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving project:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "budget" ? parseFloat(value) || 0 : value,
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
+  onFieldChange,
+  onSubmit,
+}: Props) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md transform transition-all">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-xl font-semibold text-gray-900">
               {isEditing ? "Edit Project" : "Add New Project"}
@@ -116,14 +47,19 @@ export default function ProjectModal({
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition"
+              aria-label="Close"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {/* Name */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmit();
+            }}
+            className="p-6 space-y-4"
+          >
             <div>
               <label
                 htmlFor="name"
@@ -136,7 +72,7 @@ export default function ProjectModal({
                 id="name"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) => onFieldChange("name", e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
                   errors.name ? "border-red-500" : "border-gray-300"
                 }`}
@@ -147,7 +83,6 @@ export default function ProjectModal({
               )}
             </div>
 
-            {/* Description */}
             <div>
               <label
                 htmlFor="description"
@@ -159,14 +94,13 @@ export default function ProjectModal({
                 id="description"
                 name="description"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={(e) => onFieldChange("description", e.target.value)}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
                 placeholder="Enter project description (optional)"
               />
             </div>
 
-            {/* Status */}
             <div>
               <label
                 htmlFor="status"
@@ -178,7 +112,12 @@ export default function ProjectModal({
                 id="status"
                 name="status"
                 value={formData.status}
-                onChange={handleChange}
+                onChange={(e) =>
+                  onFieldChange(
+                    "status",
+                    e.target.value as CreateProjectInput["status"],
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
               >
                 <option value="active">Active</option>
@@ -187,7 +126,6 @@ export default function ProjectModal({
               </select>
             </div>
 
-            {/* Deadline */}
             <div>
               <label
                 htmlFor="deadline"
@@ -200,7 +138,7 @@ export default function ProjectModal({
                 id="deadline"
                 name="deadline"
                 value={formData.deadline}
-                onChange={handleChange}
+                onChange={(e) => onFieldChange("deadline", e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
                   errors.deadline ? "border-red-500" : "border-gray-300"
                 }`}
@@ -210,7 +148,6 @@ export default function ProjectModal({
               )}
             </div>
 
-            {/* Budget */}
             <div>
               <label
                 htmlFor="budget"
@@ -223,9 +160,11 @@ export default function ProjectModal({
                 id="budget"
                 name="budget"
                 value={formData.budget}
-                onChange={handleChange}
-                min="0"
-                step="100"
+                onChange={(e) =>
+                  onFieldChange("budget", parseFloat(e.target.value) || 0)
+                }
+                min={0}
+                step={100}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
                   errors.budget ? "border-red-500" : "border-gray-300"
                 }`}
@@ -236,7 +175,6 @@ export default function ProjectModal({
               )}
             </div>
 
-            {/* Actions */}
             <div className="flex gap-3 pt-4">
               <button
                 type="button"

@@ -1,0 +1,73 @@
+import { useEffect } from "react";
+import { createClient } from "@/lib/utils/supabase/client";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+
+type ProjectPayload = RealtimePostgresChangesPayload<{
+  [key: string]: any;
+}>;
+
+interface UseProjectsRealtimeOptions {
+  onInsert?: (payload: ProjectPayload) => void;
+  onUpdate?: (payload: ProjectPayload) => void;
+  onDelete?: (payload: ProjectPayload) => void;
+  enabled?: boolean;
+}
+
+export function useProjectsRealtime({
+  onInsert,
+  onUpdate,
+  onDelete,
+  enabled = true,
+}: UseProjectsRealtimeOptions) {
+  useEffect(() => {
+    if (!enabled) return;
+
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel("projects-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "projects",
+        },
+        (payload) => {
+          console.log("🆕 Project inserted:", payload);
+          onInsert?.(payload);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "projects",
+        },
+        (payload) => {
+          console.log("✏️ Project updated:", payload);
+          onUpdate?.(payload);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "projects",
+        },
+        (payload) => {
+          console.log("🗑️ Project deleted:", payload);
+          onDelete?.(payload);
+        }
+      )
+      .subscribe((status) => {
+        console.log("📡 Realtime subscription status:", status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [enabled, onInsert, onUpdate, onDelete]);
+}

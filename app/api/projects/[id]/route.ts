@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { UpdateProjectInput } from "@/types/project";
 import { cookies } from "next/headers";
 import { validateUser } from "@/lib/utils/supabase/initSupabase";
+import { pickDefined } from "@/lib/utils/pickDefined";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -76,13 +77,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const body: UpdateProjectInput = await request.json();
 
-    const updateData: Record<string, unknown> = {};
-    if (body.name !== undefined) updateData.name = body.name;
-    if (body.description !== undefined)
-      updateData.description = body.description;
-    if (body.status !== undefined) updateData.status = body.status;
-    if (body.deadline !== undefined) updateData.deadline = body.deadline;
-    if (body.budget !== undefined) updateData.budget = body.budget;
+    const updateData = pickDefined(body, [
+      "name",
+      "description",
+      "status",
+      "deadline",
+      "budget",
+    ] as const);
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(

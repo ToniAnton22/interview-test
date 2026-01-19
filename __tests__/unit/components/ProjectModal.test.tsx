@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import ProjectModal from "@/components/ProjectModal";
+import ProjectModal from "@/components/ProjectModal/ProjectModal";
 import { Project, ProjectStatus } from "@/types/project";
 
 describe("ProjectModal", () => {
@@ -68,11 +68,10 @@ describe("ProjectModal", () => {
   it("calls onClose when clicking X button", () => {
     render(<ProjectModal {...defaultProps} />);
 
-    const closeButton = screen.getByRole("button", { name: "" });
-    fireEvent.click(closeButton);
+    fireEvent.click(screen.getByLabelText("Close"));
     expect(mockOnClose).toHaveBeenCalled();
   });
-
+  
   it("shows validation errors for required fields", async () => {
     render(<ProjectModal {...defaultProps} />);
 

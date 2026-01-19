@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import ProjectModal from "@/components/ProjectModal";
+import ProjectModal from "@/components/ProjectModal/ProjectModal";
 import { Project, CreateProjectInput, ProjectStatus } from "@/types/project";
 
 const meta: Meta<typeof ProjectModal> = {

@@ -16,6 +16,8 @@ import {
   getProject,
   updateProject,
 } from "@/lib/apis/projectDetails.api";
+import { AlertContainer } from "@/components/Alert";
+import { useAlerts } from "@/lib/hooks/useAlert";
 
 type ProjectDetailsContextType = {
   id: string;
@@ -41,9 +43,9 @@ type ProjectDetailsContextType = {
   handleDelete: () => Promise<void>;
 };
 
-const ProjectDetailsContext = createContext<ProjectDetailsContextType | undefined>(
-  undefined,
-);
+const ProjectDetailsContext = createContext<
+  ProjectDetailsContextType | undefined
+>(undefined);
 
 export function ProjectDetailsProvider({
   id,
@@ -60,9 +62,12 @@ export function ProjectDetailsProvider({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [deletingProject, setDeletingProject] = useState<ProjectView | null>(
-    null,
+    null
   );
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Alerts
+  const { alerts, showSuccess, showError, dismissAlert } = useAlerts();
 
   const refetch = useCallback(async () => {
     setIsLoading(true);
@@ -72,10 +77,11 @@ export function ProjectDetailsProvider({
     } catch (e) {
       console.error(e);
       setProject(null);
+      showError("Failed to load project details.");
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, showError]);
 
   useEffect(() => {
     refetch();
@@ -89,12 +95,13 @@ export function ProjectDetailsProvider({
         if (!cancelled) setCurrentUserId(uid);
       } catch (e) {
         console.error(e);
+        showError("Failed to load user data.");
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [showError]);
 
   const openEditModal = useCallback(() => setIsModalOpen(true), []);
   const closeModal = useCallback(() => setIsModalOpen(false), []);
@@ -103,11 +110,19 @@ export function ProjectDetailsProvider({
     async (data: CreateProjectInput) => {
       if (!project) return;
 
-      await updateProject(project.id, data);
-      setIsModalOpen(false);
-      await refetch();
+      try {
+        await updateProject(project.id, data);
+        showSuccess("Project updated successfully!");
+        setIsModalOpen(false);
+        await refetch();
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to update project";
+        showError(message);
+        throw error;
+      }
     },
-    [project, refetch],
+    [project, refetch, showSuccess, showError]
   );
 
   const handleDelete = useCallback(async () => {
@@ -116,11 +131,17 @@ export function ProjectDetailsProvider({
     setIsDeleting(true);
     try {
       await deleteProject(deletingProject.id);
+      showSuccess("Project deleted successfully!");
       // client will navigate back to /dashboard
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete project";
+      showError(message);
+      throw error;
     } finally {
       setIsDeleting(false);
     }
-  }, [deletingProject]);
+  }, [deletingProject, showSuccess, showError]);
 
   const value = useMemo<ProjectDetailsContextType>(
     () => ({
@@ -151,12 +172,13 @@ export function ProjectDetailsProvider({
       refetch,
       handleUpdate,
       handleDelete,
-    ],
+    ]
   );
 
   return (
     <ProjectDetailsContext.Provider value={value}>
       {children}
+      <AlertContainer alerts={alerts} onDismiss={dismissAlert} />
     </ProjectDetailsContext.Provider>
   );
 }
@@ -164,6 +186,8 @@ export function ProjectDetailsProvider({
 export function useProjectDetails() {
   const ctx = useContext(ProjectDetailsContext);
   if (!ctx)
-    throw new Error("useProjectDetails must be used within ProjectDetailsProvider");
+    throw new Error(
+      "useProjectDetails must be used within ProjectDetailsProvider"
+    );
   return ctx;
 }

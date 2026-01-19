@@ -11,3 +11,8 @@ export interface UpdateUserInput {
   name?: string;
   avatar_url?: string;
 }
+
+export interface UserOwner {
+  id: string;
+  name: string;
+}

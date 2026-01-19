@@ -74,11 +74,15 @@ function randomBudget(): number {
 async function seedUsers(): Promise<Map<string, string>> {
   console.log("👤 Creating users...\n");
   const userMap = new Map<string, string>(); // name -> user_id
+  const { data, error } = await supabase.auth.admin.listUsers();
+  if (error) throw error;
+
+  const existingByEmail = new Map(
+    (data?.users ?? []).filter((u) => !!u.email).map((u) => [u.email!, u]),
+  );
 
   for (const user of users) {
-    // Check if user already exists in auth
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const existing = existingUsers?.users?.find((u) => u.email === user.email);
+    const existing = existingByEmail.get(user.email);
 
     if (existing) {
       console.log(`  ⏭️  ${user.name} (${user.email}) already exists`);

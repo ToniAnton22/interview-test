@@ -34,7 +34,7 @@ CREATE TRIGGER update_projects_updated_at
 
 -- Enable Row Level Security
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
-
+ALTER PUBLICATION supabase_realtime ADD TABLE projects;
 -- Everyone can view all projects
 CREATE POLICY "Anyone can view projects" ON projects
   FOR SELECT

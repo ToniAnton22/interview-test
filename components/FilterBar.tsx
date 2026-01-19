@@ -1,13 +1,21 @@
 "use client";
 
 import { ProjectStatusFilter } from "@/types/project";
+import { UserOwner } from "@/types/users";
 import { Search, Plus } from "lucide-react";
 
 interface FilterBarProps {
   search: string;
   onSearchChange: (value: string) => void;
+
   status: ProjectStatusFilter;
   onStatusChange: (value: ProjectStatusFilter) => void;
+
+  assignee: string; // "" = all
+  owners: UserOwner[];
+  currentUserId: string;
+  onAssigneeChange: (value: string) => void;
+
   onAddClick: () => void;
 }
 
@@ -16,12 +24,16 @@ export default function FilterBar({
   onSearchChange,
   status,
   onStatusChange,
+  assignee,
+  owners,
+  currentUserId,
+  onAssigneeChange,
   onAddClick,
 }: FilterBarProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type="text"
           placeholder="Search projects..."
@@ -40,6 +52,19 @@ export default function FilterBar({
         <option value={ProjectStatusFilter.ACTIVE}>Active</option>
         <option value={ProjectStatusFilter.ON_HOLD}>On Hold</option>
         <option value={ProjectStatusFilter.COMPLETED}>Completed</option>
+      </select>
+
+      <select
+        value={assignee}
+        onChange={(e) => onAssigneeChange(e.target.value)}
+        className="px-4 py-2 text-zinc-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
+      >
+        <option value="">All Owners</option>
+        {owners.map((owner) => (
+          <option key={owner.id} value={owner.id}>
+            {owner.id === currentUserId ? "Me" : owner.name}
+          </option>
+        ))}
       </select>
 
       <button

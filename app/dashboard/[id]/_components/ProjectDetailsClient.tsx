@@ -1,21 +1,19 @@
 "use client";
-
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import ProjectModal from "@/components/ProjectModal";
+import ProjectModal from "@/components/ProjectModal/ProjectModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import StatusBadge from "@/components/StatusBadge";
-import { formatDate } from "@/lib/utils/formatters/formateDate";
+import { formatDate } from "@/lib/utils/formatters/formatDate";
 import {
   ProjectDetailsProvider,
   useProjectDetails,
 } from "@/lib/providers/ProjectDetailsProvider";
 import { formatBudget } from "@/lib/utils/formatters/formatBudget";
+import { useRouter } from "next/navigation";
 
 function ProjectDetailsView() {
   const router = useRouter();
-
   const {
     project,
     isLoading,
@@ -31,18 +29,23 @@ function ProjectDetailsView() {
   } = useProjectDetails();
 
   const canEdit = !!project && currentUserId === project.assigned_user.id;
-
+  
   const onConfirmDelete = async () => {
-    await handleDelete();
-    router.push("/dashboard");
-    router.refresh();
+    try {
+      await handleDelete();
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      // Error is handled by the provider (shows alert)
+      // Don't navigate - stay on page
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div>
               <Link
                 href="/dashboard"
