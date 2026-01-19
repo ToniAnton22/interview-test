@@ -5,6 +5,7 @@ A production-ready project management dashboard built as a full-stack developer 
 **IMPORTANT: When signing up an email confirmation will be sent**
 
 **Live Demo (Hosted on my domain through a subdomain):** [https://interview.bard-labs.com](https://interview.bard-labs.com)
+
 **Live Demo (Vercel Link):** [interview-test-roan.vercel.app](interview-test-roan.vercel.app)
 
 > **Test Account:** `alice@example.com` / `password123`
