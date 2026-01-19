@@ -1,7 +1,5 @@
-import { createClient } from "@/lib/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { UpdateProjectInput } from "@/types/project";
-import { cookies } from "next/headers";
 import { validateUser } from "@/lib/utils/supabase/initSupabase";
 import { pickDefined } from "@/lib/utils/pickDefined";
 
