@@ -9,17 +9,19 @@ export async function signIn(email: string, password: string) {
 export async function signUp(email: string, password: string, name?: string) {
   const supabase = createClient();
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: name ? { name } : undefined,
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   });
 
   if (error) throw error;
-  return data; // 👈 return data so caller can react
+  return data; 
 }
 export async function signOut() {
   const supabase = createClient();
