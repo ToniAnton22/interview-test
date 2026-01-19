@@ -16,14 +16,38 @@ export function useAuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState("");
 
   const submit = useCallback(async () => {
     setIsLoading(true);
 
     try {
       if (mode === "signup") {
-        await signUp(email, password);
-        showSuccess("Check your email for the confirmation link!");
+        await signUp(email, password, name.trim() || undefined);
+
+        // attempt immediate sign-in in case the same email already exists.
+        try {
+          await signIn(email, password);
+          showSuccess("Welcome back!");
+          router.push("/dashboard");
+          router.refresh();
+          return;
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "";
+
+          // user created but must confirm email
+          if (msg.toLowerCase().includes("email not confirmed")) {
+            showSuccess("Check your email for the confirmation link!");
+            return;
+          }
+
+          // account exists but password doesn't match, or other auth issue
+          showError(
+            "This email may already be registered. Try signing in instead (or reset your password).",
+          );
+          setMode("login");
+          return;
+        }
       } else {
         await signIn(email, password);
         showSuccess("Welcome back!");
@@ -35,7 +59,7 @@ export function useAuthForm() {
     } finally {
       setIsLoading(false);
     }
-  }, [email, mode, password, router, showSuccess, showError]);
+  }, [email, password, name, mode, router, showSuccess, showError]);
 
   return useMemo(
     () => ({
@@ -43,6 +67,8 @@ export function useAuthForm() {
       setMode,
       email,
       setEmail,
+      name,
+      setName,
       password,
       setPassword,
       isLoading,
@@ -50,6 +76,15 @@ export function useAuthForm() {
       alerts: alertsHook.alerts,
       dismissAlert: alertsHook.dismissAlert,
     }),
-    [mode, email, password, isLoading, submit, alertsHook.alerts, alertsHook.dismissAlert]
+    [
+      mode,
+      email,
+      name,
+      password,
+      isLoading,
+      submit,
+      alertsHook.alerts,
+      alertsHook.dismissAlert,
+    ],
   );
 }

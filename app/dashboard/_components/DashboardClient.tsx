@@ -31,6 +31,7 @@ export default function DashboardPage() {
     openEditModal,
     closeModal,
     setDeletingProject,
+    handleLogout
   } = useProjects();
   return (
     <div className="min-h-screen bg-gray-50">
@@ -42,8 +43,14 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-500 mt-1">
                 Manage and track all your projects in one place
               </p>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition mt-2"
+              >
+                Logout
+              </button>
             </div>
-            <div className="invisible sm:visible text-sm text-gray-500">
+            <div className="invisible sm:visible text-sm text-gray-500 my-2">
               {pagination.total} project{pagination.total !== 1 ? "s" : ""}
             </div>
           </div>
@@ -62,7 +69,7 @@ export default function DashboardPage() {
           onAssigneeChange={setAssignee}
           onAddClick={openAddModal}
         />
-        
+
         <ProjectTable
           projects={projects}
           currentUserId={currentUserId}

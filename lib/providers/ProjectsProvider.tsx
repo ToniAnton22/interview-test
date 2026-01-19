@@ -29,6 +29,8 @@ import { UserOwner } from "@/types/users";
 import { getCurrentUser, getOwners } from "@/lib/apis/users.api";
 import { useProjectsRealtime } from "@/lib/hooks/useProjectsRealtime";
 import { useAlerts } from "../hooks/useAlert";
+import { useRouter } from "next/navigation";
+import { signOut } from "../apis/auth.api";
 
 interface ProjectsContextType {
   projects: ProjectView[];
@@ -54,7 +56,7 @@ interface ProjectsContextType {
   handleCreate: (data: CreateProjectInput) => Promise<void>;
   handleUpdate: (data: CreateProjectInput) => Promise<void>;
   handleDelete: () => Promise<void>;
-
+  handleLogout: () => Promise<void>;
   openAddModal: () => void;
   openEditModal: (project: ProjectView) => void;
   closeModal: () => void;
@@ -72,17 +74,18 @@ const DEFAULT_PAGINATION: PaginationInfo = {
 };
 
 const ProjectsContext = createContext<ProjectsContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function ProjectsProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [projects, setProjects] = useState<ProjectView[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [owners, setOwners] = useState<UserOwner[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>(
-    ProjectStatusFilter.ALL
+    ProjectStatusFilter.ALL,
   );
   const [assignee, setAssignee] = useState<string>("");
 
@@ -101,7 +104,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
 
   // Track if we're actively filtering (disables realtime auto-refresh)
   const isFiltering = Boolean(
-    search || assignee || statusFilter !== ProjectStatusFilter.ALL
+    search || assignee || statusFilter !== ProjectStatusFilter.ALL,
   );
 
   const fetchProjects = useCallback(
@@ -132,7 +135,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     },
-    [pagination.limit, search, statusFilter, assignee, showError]
+    [pagination.limit, search, statusFilter, assignee, showError],
   );
 
   const fetchUser = useCallback(async () => {
@@ -187,7 +190,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     (page: number) => {
       fetchProjects(page);
     },
-    [fetchProjects]
+    [fetchProjects],
   );
 
   const handleCreate = useCallback(
@@ -205,8 +208,14 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         throw error; // Re-throw so modal knows it failed
       }
     },
-    [fetchProjects, isFiltering, showSuccess, showError]
+    [fetchProjects, isFiltering, showSuccess, showError],
   );
+
+  const handleLogout = useCallback(async () => {
+    await signOut();
+    router.push("/login");
+    router.refresh();
+  },[router]);
 
   const handleUpdate = useCallback(
     async (data: CreateProjectInput) => {
@@ -224,7 +233,14 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    [editingProject, fetchProjects, pagination.page, isFiltering, showSuccess, showError]
+    [
+      editingProject,
+      fetchProjects,
+      pagination.page,
+      isFiltering,
+      showSuccess,
+      showError,
+    ],
   );
 
   const handleDelete = useCallback(async () => {
@@ -308,7 +324,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       handleCreate,
       handleUpdate,
       handleDelete,
-
+      handleLogout,
       openAddModal,
       openEditModal,
       closeModal,
@@ -332,10 +348,11 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       handleCreate,
       handleUpdate,
       handleDelete,
+      handleLogout,
       openAddModal,
       openEditModal,
       closeModal,
-    ]
+    ],
   );
 
   return (

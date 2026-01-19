@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2, User } from "lucide-react";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { AlertContainer } from "@/components/Alert";
 
@@ -16,6 +16,8 @@ export default function LoginPage() {
     submit,
     alerts,
     dismissAlert,
+    setName,
+    name
   } = useAuthForm();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -81,6 +83,28 @@ export default function LoginPage() {
                 />
               </div>
             </div>
+
+            {mode === "signup" && (
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Name <span className="text-gray-400">(optional)</span>
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="John Doe"
+                  />
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"

@@ -2,7 +2,8 @@
 
 A production-ready project management dashboard built as a full-stack developer assessment. This project demonstrates clean architecture, proper separation of concerns, real-time updates, toast notifications, and comprehensive testing.
 
-**Live Demo:** [https://mini-saas-dashboard.vercel.app](https://mini-saas-dashboard.vercel.app)
+**Live Demo (Hosted on my domain through a subdomain):** [https://interview.bard-labs.com](https://interview.bard-labs.com)
+**Live Demo (Vercel Link):** [interview-test-roan.vercel.app](interview-test-roan.vercel.app)
 
 > **Test Account:** `alice@example.com` / `password123`
 

@@ -1,7 +1,5 @@
-import { createClient } from "@/lib/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { CreateProjectInput } from "@/types/project";
-import { cookies } from "next/headers";
 import { validateUser } from "@/lib/utils/supabase/initSupabase";
 
 export async function GET(request: NextRequest) {
@@ -28,12 +26,13 @@ export async function GET(request: NextRequest) {
       .from("projects")
       .select(
         `
-          *,
-          assigned_user:users!assigned_to (id, name)
-        `,
+      *,
+      assigned_user:users!assigned_to (id, name)
+    `,
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (status && status !== "all") {
