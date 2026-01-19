@@ -1164,25 +1164,18 @@ All API routes follow a consistent error response format:
 
 ### Testing the API
 
-#### Using cURL
+This app uses **Supabase Auth**. There is no custom `/api/auth/login` endpoint.
+To test authenticated API routes (`/api/projects`), you have two options:
 
-```bash
-# Login first to get session cookie
-curl -X POST https://interview.bard-labs.com/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"alice@example.com","password":"password123"}' \
-  -c cookies.txt
+#### Option A: Use the UI (recommended)
+1. Open the app and log in via the Login page.
+2. The app stores an HTTP-only session cookie.
+3. You can now call API routes like `GET /api/projects` from the browser or tools that support cookies.
 
-# Then use the cookie for authenticated requests
-curl https://interview.bard-labs.com/api/projects \
-  -b cookies.txt
-```
-
-#### Using Postman/Insomnia
-
-1. Enable cookie handling in settings
-2. Make a login request to `/api/auth/login`
-3. Subsequent requests will automatically include session cookie
+#### Option B: Use Postman/Insomnia
+1. Enable cookie handling (cookie jar).
+2. Sign in through the app UI first OR use Supabase auth directly (see below).
+3. Requests to `/api/projects` will include the session cookie automatically.
 
 ---
 
