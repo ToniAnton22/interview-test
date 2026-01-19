@@ -13,7 +13,7 @@ describe("FilterBar", () => {
     onSearchChange: jest.fn(),
     status: ProjectStatusFilter.ALL,
     onStatusChange: jest.fn(),
-
+    currentUserId: "user-1",
     assignee: "",
     owners: ownersMock,
     onAssigneeChange: jest.fn(),
@@ -55,7 +55,7 @@ describe("FilterBar", () => {
     expect(ownerSelect).toBeInTheDocument();
 
     expect(screen.getByText("All Owners")).toBeInTheDocument();
-    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getByText("Me")).toBeInTheDocument();
     expect(screen.getByText("Bob")).toBeInTheDocument();
   });
 

@@ -30,7 +30,7 @@ jest.mock("@/lib/utils/supabase/client", () => ({
   }),
 }));
 
-jest.mock("@/lib/hooks/useProjectRealtime", () => ({
+jest.mock("@/lib/hooks/useProjectsRealtime", () => ({
   useProjectsRealtime: jest.fn(),
 }));
 

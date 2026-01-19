@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "lucide-react";
 import { useEffect } from "react";
 
 export default function GlobalError({
@@ -28,12 +29,12 @@ export default function GlobalError({
           >
             Try again
           </button>
-          <a
+          <Link
             href="/dashboard"
             className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition font-medium"
           >
             Back to Dashboard
-          </a>
+          </Link>
         </div>
 
         {process.env.NODE_ENV !== "production" && (

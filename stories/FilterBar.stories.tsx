@@ -84,6 +84,7 @@ export const WithBothFilters: Story = {
     status: ProjectStatusFilter.ON_HOLD,
     assignee: "user-1",
     owners: ownersMock,
+    currentUserId: "user-1",
     onSearchChange: (value) => console.log("Search:", value),
     onStatusChange: (value) => console.log("Status:", value),
     onAssigneeChange: (value) => console.log("Assignee:", value),
@@ -106,6 +107,7 @@ const InteractiveFilterBar = () => {
         status={status}
         onStatusChange={(s) => setStatus(s as ProjectStatusFilter)}
         assignee={assignee}
+        currentUserId="user-1"
         owners={ownersMock}
         onAssigneeChange={setAssignee}
         onAddClick={() => alert("Add project clicked!")}

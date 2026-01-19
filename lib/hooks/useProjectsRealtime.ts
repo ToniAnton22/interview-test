@@ -3,7 +3,7 @@ import { createClient } from "@/lib/utils/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 type ProjectPayload = RealtimePostgresChangesPayload<{
-  [key: string]: any;
+  [key: string]: unknown;
 }>;
 
 interface UseProjectsRealtimeOptions {
